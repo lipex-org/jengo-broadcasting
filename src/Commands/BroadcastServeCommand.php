@@ -61,6 +61,18 @@ class BroadcastServeCommand extends BaseCommand
             CLI::write("[{$time}] {$message}", $color);
         });
 
+        if (function_exists('pcntl_async_signals') && function_exists('pcntl_signal')) {
+            pcntl_async_signals(true);
+            pcntl_signal(SIGINT, static function () use ($server): void {
+                CLI::newLine();
+                CLI::write('Stopping WebSocket server...', 'yellow');
+                $server->stop();
+            });
+            pcntl_signal(SIGTERM, static function () use ($server): void {
+                $server->stop();
+            });
+        }
+
         try {
             $server->listen();
             $server->run();
