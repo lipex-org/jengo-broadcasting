@@ -199,14 +199,15 @@ class WebSocketServer
     protected function readClient($socket): void
     {
         $socketId = (int) $socket;
+
+        if (! isset($this->clients[$socketId], $this->clientMeta[$socketId])) {
+            return;
+        }
+
         $data = @fread($socket, 8192);
 
         if ($data === false || $data === '') {
             $this->disconnectClient($socket);
-            return;
-        }
-
-        if (! isset($this->clientMeta[$socketId])) {
             return;
         }
 
@@ -237,6 +238,10 @@ class WebSocketServer
                     [$payload, $opcode, $consumedBytes] = $decoded;
                     $this->clientMeta[$socketId]['buffer'] = substr($this->clientMeta[$socketId]['buffer'], $consumedBytes);
                     $this->handleFrame($socket, $opcode, $payload);
+
+                    if (! isset($this->clientMeta[$socketId])) {
+                        break;
+                    }
                 }
             }
             return;
@@ -245,7 +250,7 @@ class WebSocketServer
         // 2. WebSocket frame reading
         $this->clientMeta[$socketId]['buffer'] .= $data;
 
-        while ($this->clientMeta[$socketId]['buffer'] !== '') {
+        while (isset($this->clientMeta[$socketId]) && $this->clientMeta[$socketId]['buffer'] !== '') {
             $decoded = $this->decodeFrame($this->clientMeta[$socketId]['buffer']);
 
             if ($decoded === null) {
@@ -257,6 +262,10 @@ class WebSocketServer
             $this->clientMeta[$socketId]['buffer'] = substr($this->clientMeta[$socketId]['buffer'], $consumedBytes);
 
             $this->handleFrame($socket, $opcode, $payload);
+
+            if (! isset($this->clientMeta[$socketId])) {
+                break;
+            }
         }
     }
 

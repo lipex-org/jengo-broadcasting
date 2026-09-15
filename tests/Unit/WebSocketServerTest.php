@@ -64,4 +64,45 @@ class WebSocketServerTest extends TestCase
         $server->stop();
         $this->assertSame(0, $server->getConnectedClientCount());
     }
+
+    public function test_client_disconnect_on_close_frame_does_not_throw_undefined_array_key(): void
+    {
+        $port = random_int(20000, 35000);
+        $server = new WebSocketServer('127.0.0.1', $port);
+        $server->listen();
+
+        $client = stream_socket_client("tcp://127.0.0.1:{$port}", $errno, $errstr, 2);
+        $this->assertIsResource($client);
+
+        // Accept connection
+        $server->tick(50);
+        $this->assertSame(1, $server->getConnectedClientCount());
+
+        // Send handshake
+        $key = base64_encode('test-key-123456');
+        $handshake = "GET / HTTP/1.1\r\nHost: 127.0.0.1:{$port}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: {$key}\r\nSec-WebSocket-Version: 13\r\n\r\n";
+        fwrite($client, $handshake);
+        $server->tick(50);
+
+        // Read handshake response from server
+        fread($client, 2048);
+
+        // Send masked close frame (opcode 0x8)
+        $mask = pack('N', 0x11223344);
+        $closeCode = pack('n', 1000);
+        $maskedPayload = '';
+        for ($i = 0; $i < strlen($closeCode); $i++) {
+            $maskedPayload .= $closeCode[$i] ^ $mask[$i % 4];
+        }
+        $closeFrame = chr(0x88) . chr(0x80 | strlen($closeCode)) . $mask . $maskedPayload;
+        fwrite($client, $closeFrame);
+
+        // Server processes close frame - MUST NOT throw Undefined array key
+        $server->tick(50);
+
+        $this->assertSame(0, $server->getConnectedClientCount());
+
+        @fclose($client);
+        $server->stop();
+    }
 }
