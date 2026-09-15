@@ -65,7 +65,6 @@ abstract class AbstractBroadcaster implements BroadcasterInterface
 
         return $response
             ->setStatusCode($status)
-            ->setContentType('application/json')
-            ->setBody(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            ->setJSON($data);
     }
 }
