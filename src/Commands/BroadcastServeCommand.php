@@ -65,12 +65,21 @@ class BroadcastServeCommand extends BaseCommand
             pcntl_async_signals(true);
             pcntl_signal(SIGINT, static function () use ($server): void {
                 CLI::newLine();
-                CLI::write('Stopping WebSocket server...', 'yellow');
+                CLI::write('[BroadcastServe] SIGINT received, stopping server...', 'yellow');
                 $server->stop();
             });
             pcntl_signal(SIGTERM, static function () use ($server): void {
+                CLI::newLine();
+                CLI::write('[BroadcastServe] SIGTERM received, stopping server...', 'yellow');
                 $server->stop();
             });
+            if (defined('SIGHUP')) {
+                pcntl_signal(SIGHUP, static function () use ($server): void {
+                    CLI::newLine();
+                    CLI::write('[BroadcastServe] SIGHUP received, stopping server...', 'yellow');
+                    $server->stop();
+                });
+            }
         }
 
         try {
