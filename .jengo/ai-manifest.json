@@ -1,0 +1,132 @@
+{
+  "name": "jengo/broadcasting",
+  "description": "Enterprise-grade real-time event broadcasting subsystem for CodeIgniter 4 and the Jengo Framework with Pusher, Soketi, Server-Sent Events (SSE), and Redis support.",
+  "version": "1.0.0",
+  "facade": {
+    "class": "Jengo\\Broadcasting\\Broadcast",
+    "description": "Primary static entry point providing fluent direct broadcasting, channel authorization rules, event dispatching, and testing fakes."
+  },
+  "drivers": [
+    {
+      "name": "pusher",
+      "class": "Jengo\\Broadcasting\\Drivers\\PusherBroadcaster",
+      "description": "Native pure-PHP HTTP REST driver for Pusher Channels, Soketi, and Laravel Reverb with Pusher Protocol v7 authentication signing."
+    },
+    {
+      "name": "sse",
+      "class": "Jengo\\Broadcasting\\Drivers\\SseBroadcaster",
+      "description": "Built-in, zero-daemon pure-PHP Server-Sent Events streaming engine with client reconnection recovery, channel multiplexing, and keep-alive heartbeats."
+    },
+    {
+      "name": "redis",
+      "class": "Jengo\\Broadcasting\\Drivers\\RedisBroadcaster",
+      "description": "High-throughput Redis Pub/Sub driver for distributed microservices or custom Go/Node.js socket gateways."
+    },
+    {
+      "name": "ably",
+      "class": "Jengo\\Broadcasting\\Drivers\\AblyBroadcaster",
+      "description": "Enterprise real-time platform driver communicating directly with Ably REST APIs."
+    },
+    {
+      "name": "log",
+      "class": "Jengo\\Broadcasting\\Drivers\\LogBroadcaster",
+      "description": "Writes broadcast channels, event names, and payloads to the CodeIgniter 4 application log files."
+    },
+    {
+      "name": "null",
+      "class": "Jengo\\Broadcasting\\Drivers\\NullBroadcaster",
+      "description": "Silently discards broadcast events for local development or disabled environments."
+    }
+  ],
+  "channels": [
+    {
+      "name": "Channel",
+      "class": "Jengo\\Broadcasting\\Channels\\Channel",
+      "description": "Public channel accessible to any client without authentication."
+    },
+    {
+      "name": "PrivateChannel",
+      "class": "Jengo\\Broadcasting\\Channels\\PrivateChannel",
+      "description": "Private channel requiring user authorization via /broadcasting/auth. Automatically prefixed with private- on the wire."
+    },
+    {
+      "name": "PresenceChannel",
+      "class": "Jengo\\Broadcasting\\Channels\\PresenceChannel",
+      "description": "Authenticated presence channel tracking connected members in real time. Automatically prefixed with presence- on the wire."
+    }
+  ],
+  "contracts": [
+    {
+      "name": "ShouldBroadcast",
+      "class": "Jengo\\Broadcasting\\Contracts\\ShouldBroadcast",
+      "description": "Marker interface for domain events that should be broadcast to channels."
+    },
+    {
+      "name": "ShouldBroadcastNow",
+      "class": "Jengo\\Broadcasting\\Contracts\\ShouldBroadcastNow",
+      "description": "Marker interface indicating immediate synchronous broadcast during the current request lifecycle without queueing."
+    }
+  ],
+  "attributes": [
+    {
+      "name": "BroadcastOn",
+      "class": "Jengo\\Broadcasting\\Attributes\\BroadcastOn",
+      "description": "Specifies the target broadcast channel(s) directly on an event class."
+    },
+    {
+      "name": "BroadcastAs",
+      "class": "Jengo\\Broadcasting\\Attributes\\BroadcastAs",
+      "description": "Specifies a custom broadcast event name."
+    },
+    {
+      "name": "BroadcastWith",
+      "class": "Jengo\\Broadcasting\\Attributes\\BroadcastWith",
+      "description": "Restricts event broadcasting payload to explicit property names."
+    }
+  ],
+  "testing": {
+    "fake": "Jengo\\Broadcasting\\Testing\\BroadcastFake",
+    "activation": "Broadcast::fake(): Jengo\\Broadcasting\\Testing\\BroadcastFake",
+    "trait": "Jengo\\Broadcasting\\Testing\\Concerns\\BroadcastTestAssertionsTrait",
+    "assertions": [
+      "$fake->assertBroadcasted(string|callable $eventOrCallback, ?callable $callback = null)",
+      "$fake->assertBroadcastedTimes(string $event, int $times)",
+      "$fake->assertBroadcastedTo(string|Channel $channel, ?string $event = null)",
+      "$fake->assertNotBroadcasted(string|callable $eventOrCallback)",
+      "$fake->assertNothingBroadcasted()",
+      "$fake->assertChannelAuthorized(string $channel, mixed $user = null)",
+      "$fake->assertChannelUnauthorized(string $channel, mixed $user = null)"
+    ]
+  },
+  "helpers": [
+    {
+      "name": "broadcast",
+      "signature": "broadcast(mixed $eventOrChannels = null, ?string $event = null, array $payload = []): mixed",
+      "description": "Dispatches an event object, initiates a fluent builder Broadcast::on(), or directly broadcasts to a channel."
+    }
+  ],
+  "commands": [
+    {
+      "name": "broadcast:routes",
+      "command": "php spark broadcast:routes",
+      "description": "List all registered channel authorization routes and wildcard pattern matchers."
+    },
+    {
+      "name": "broadcast:test",
+      "command": "php spark broadcast:test <channel> <event> [--data=JSON]",
+      "description": "Dispatch a test broadcast event to verify channel connectivity."
+    },
+    {
+      "name": "broadcast:sse",
+      "command": "php spark broadcast:sse [--channels=...]",
+      "description": "Monitor and diagnostic log Server-Sent Events (SSE) stream activity."
+    }
+  ],
+  "installers": [
+    {
+      "class": "Jengo\\Broadcasting\\Installers\\BroadcastingInstaller",
+      "command": "php spark jengo:install broadcasting",
+      "description": "Publishes default configuration into app/Config/Broadcasting.php and creates app/Config/Channels.php."
+    }
+  ]
+}

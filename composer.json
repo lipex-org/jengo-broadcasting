@@ -1,0 +1,48 @@
+{
+  "name": "jengo/broadcasting",
+  "description": "Enterprise-grade real-time event broadcasting subsystem for CodeIgniter 4 and the Jengo Framework with Pusher, Soketi, Server-Sent Events (SSE), and Redis support.",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Ian Ochieng",
+      "email": "ochiengian383@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^8.2",
+    "codeigniter4/framework": "^4.6|^4.7",
+    "jengo/base": "^1.1|dev-main"
+  },
+  "suggest": {
+    "predis/predis": "Required when utilizing the Redis broadcasting driver",
+    "pusher/pusher-php-server": "Alternative vendor client for legacy Pusher setups (native CI4 cURL driver is used by default)"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^11.5"
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../base"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Jengo\\Broadcasting\\": "src/"
+    },
+    "files": [
+      "src/Helpers/broadcast_helper.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "scripts": {
+    "test": "phpunit --no-coverage --colors=always"
+  }
+}

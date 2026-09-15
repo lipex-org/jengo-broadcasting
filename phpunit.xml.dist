@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd" bootstrap="vendor/codeigniter4/framework/system/Test/bootstrap.php" colors="true" cacheDirectory="build/phpunit" executionOrder="depends,defects" failOnRisky="true" failOnWarning="true">
+  <testsuites>
+    <testsuite name="Jengo Broadcasting Test Suite">
+      <directory suffix="Test.php">tests</directory>
+    </testsuite>
+  </testsuites>
+  <source restrictNotices="true" restrictWarnings="true" ignoreIndirectDeprecations="true">
+    <include>
+      <directory suffix=".php">src</directory>
+    </include>
+  </source>
+  <php>
+    <env name="CI_ENVIRONMENT" value="testing"/>
+  </php>
+</phpunit>
