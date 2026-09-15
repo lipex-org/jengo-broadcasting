@@ -17,8 +17,9 @@ class SseBroadcasterTest extends TestCase
         parent::setUp();
         SseBroadcaster::clearMemoryBuffer();
         $this->broadcaster = new SseBroadcaster([
-            'heartbeat' => 10,
-            'retry'     => 2000,
+            'cache_prefix' => 'sse_test_' . uniqid(),
+            'heartbeat'    => 10,
+            'retry'        => 2000,
         ]);
     }
 
