@@ -215,17 +215,29 @@ class WebSocketServer
             $this->clientMeta[$socketId]['buffer'] .= $data;
 
             if (str_contains($this->clientMeta[$socketId]['buffer'], "\r\n\r\n")) {
-                $rawRequest = $this->clientMeta[$socketId]['buffer'];
-                $this->clientMeta[$socketId]['buffer'] = '';
+                $parts = explode("\r\n\r\n", $this->clientMeta[$socketId]['buffer'], 2);
+                $rawRequest = $parts[0] . "\r\n\r\n";
+                $this->clientMeta[$socketId]['buffer'] = $parts[1] ?? '';
 
                 // Handle HTTP REST Broadcast POST request (e.g. from PusherBroadcaster)
                 if (str_starts_with($rawRequest, 'POST ')) {
-                    $this->handleHttpBroadcast($socket, $rawRequest);
+                    $this->handleHttpBroadcast($socket, $rawRequest . $this->clientMeta[$socketId]['buffer']);
                     return;
                 }
 
                 // Handle WebSocket upgrade handshake
                 $this->handleHandshake($socket, $rawRequest);
+
+                // Process any frames that were included in the same TCP segment
+                while (isset($this->clientMeta[$socketId]) && $this->clientMeta[$socketId]['buffer'] !== '') {
+                    $decoded = $this->decodeFrame($this->clientMeta[$socketId]['buffer']);
+                    if ($decoded === null) {
+                        break;
+                    }
+                    [$payload, $opcode, $consumedBytes] = $decoded;
+                    $this->clientMeta[$socketId]['buffer'] = substr($this->clientMeta[$socketId]['buffer'], $consumedBytes);
+                    $this->handleFrame($socket, $opcode, $payload);
+                }
             }
             return;
         }
@@ -266,11 +278,22 @@ class WebSocketServer
         $key = trim($matches[1]);
         $accept = base64_encode(sha1($key . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11', true));
 
+        // Negotiate subprotocol ONLY if the client specifically requested one
+        $protocolHeader = '';
+        if (preg_match('/Sec-WebSocket-Protocol:\s*([^\r\n]+)/i', $headers, $protoMatches)) {
+            $requestedProtocols = array_map('trim', explode(',', $protoMatches[1]));
+            if (in_array('pusher', $requestedProtocols, true)) {
+                $protocolHeader = "Sec-WebSocket-Protocol: pusher\r\n";
+            } elseif (! empty($requestedProtocols[0])) {
+                $protocolHeader = "Sec-WebSocket-Protocol: {$requestedProtocols[0]}\r\n";
+            }
+        }
+
         $upgradeResponse = "HTTP/1.1 101 Switching Protocols\r\n" .
             "Upgrade: websocket\r\n" .
             "Connection: Upgrade\r\n" .
             "Sec-WebSocket-Accept: {$accept}\r\n" .
-            "Sec-WebSocket-Protocol: pusher\r\n\r\n";
+            $protocolHeader . "\r\n";
 
         $this->sendRaw($socket, $upgradeResponse);
 
@@ -288,12 +311,6 @@ class WebSocketServer
         $this->sendFrame($socket, json_encode([
             'event' => 'pusher:connection_established',
             'data'  => $initData,
-        ]));
-
-        // Also send generic connection confirmation
-        $this->sendFrame($socket, json_encode([
-            'type'      => 'connected',
-            'socket_id' => $clientId,
         ]));
     }
 
