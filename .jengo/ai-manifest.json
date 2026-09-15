@@ -120,6 +120,11 @@
       "name": "broadcast:sse",
       "command": "php spark broadcast:sse [--channels=...]",
       "description": "Monitor and diagnostic log Server-Sent Events (SSE) stream activity."
+    },
+    {
+      "name": "broadcast:serve",
+      "command": "php spark broadcast:serve [--host=0.0.0.0] [--port=6001]",
+      "description": "Start the pure-PHP WebSocket broadcast daemon supporting Pusher Protocol v7 and RFC 6455 WebSockets."
     }
   ],
   "installers": [
