@@ -1,6 +1,27 @@
 # Jengo Broadcasting
 
-Enterprise-grade real-time event broadcasting subsystem for CodeIgniter 4 and the Jengo Framework.
+Real-time event broadcasting subsystem for CodeIgniter 4 and the Jengo Framework.
+
+> [!WARNING]
+> **DEVELOPMENT / EXPERIMENTAL STATUS**
+> This package and its built-in pure-PHP WebSocket daemon (`php spark broadcast:serve`) are currently in **active development and experimental status**.
+> **THIS PACKAGE IS NOT PRODUCTION READY.**
+> - The built-in WebSocket daemon is provided strictly for **local development**, **rapid prototyping**, and **experimental testing**.
+> - It has not undergone formal security audits, multi-process clustering hardening, or long-term socket leak stress tests.
+> - Do not deploy or rely on this package in production or mission-critical environments.
+
+---
+
+## Practical Application Guide
+
+Looking for practical ways to use broadcasting and build real-time apps from scratch? Read the comprehensive [**Practical Development Guide**](docs/PRACTICAL_GUIDE.md), which includes complete walkthroughs for:
+1. **Live Order / Delivery Status Tracker** (Public Channels)
+2. **Heavy Background Job & Export Progress Bar** (Private Channels + Authorization)
+3. **Trello-Style Kanban Board** (Preventing sender echo with `toOthers()`)
+4. **Flash Sale Stock Counter** (High-frequency public events)
+5. **Interactive Polling Room** (Presence Channels)
+
+---
 
 ## Features
 
@@ -81,7 +102,7 @@ Broadcast::channel('orders.{id}', function ($user, int $id): bool {
 ```
 
 ### 4. Testing
-
+ 
 ```php
 public function test_order_broadcasts(): void
 {
@@ -93,3 +114,21 @@ public function test_order_broadcasts(): void
     $fake->assertBroadcastedTo('private-orders.42');
 }
 ```
+
+---
+
+## Local Development WebSocket Daemon
+
+To run the built-in development WebSocket server for local experimentation:
+
+```bash
+# Start local WebSocket server on port 6001 (default)
+php spark broadcast:serve
+
+# Custom host and port
+php spark broadcast:serve --host=127.0.0.1 --port=8080
+```
+
+> [!NOTE]
+> This daemon is designed strictly as a zero-dependency local development tool so you do not need Docker, Node.js, or external cloud accounts while building and testing your application. It is **not** intended for production workloads.
+
