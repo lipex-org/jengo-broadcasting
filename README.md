@@ -12,14 +12,9 @@ Real-time event broadcasting subsystem for CodeIgniter 4 and the Jengo Framework
 
 ---
 
-## Practical Application Guide
+## Documentation
 
-Looking for practical ways to use broadcasting and build real-time apps from scratch? Read the comprehensive [**Practical Development Guide**](docs/PRACTICAL_GUIDE.md), which includes complete walkthroughs for:
-1. **Live Order / Delivery Status Tracker** (Public Channels)
-2. **Heavy Background Job & Export Progress Bar** (Private Channels + Authorization)
-3. **Trello-Style Kanban Board** (Preventing sender echo with `toOthers()`)
-4. **Flash Sale Stock Counter** (High-frequency public events)
-5. **Interactive Polling Room** (Presence Channels)
+Comprehensive documentation, practical application patterns, and integration guides are available in the central [Jengo Documentation](https://github.com/jengophp).
 
 ---
 
