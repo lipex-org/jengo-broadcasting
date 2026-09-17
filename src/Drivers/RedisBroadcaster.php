@@ -51,7 +51,7 @@ class RedisBroadcaster extends AbstractBroadcaster
 
         foreach ($formattedChannels as $channel) {
             $redisChannel = $this->prefix . $channel;
-            if (method_exists($client, 'publish')) {
+            if (is_object($client) && (method_exists($client, 'publish') || is_callable([$client, 'publish']) || method_exists($client, '__call'))) {
                 $client->publish($redisChannel, $message);
             }
         }
@@ -94,16 +94,17 @@ class RedisBroadcaster extends AbstractBroadcaster
     {
         return $this->jsonResponse(['authenticated' => true]);
     }
-
     public function validAuthenticationResponse(IncomingRequest $request, mixed $result): mixed
     {
         if ($result === false || $result === null) {
             return $this->jsonResponse(['error' => 'Unauthorized'], 403);
         }
 
-        return $this->jsonResponse([
-            'authenticated' => true,
-            'channel_data'  => $result,
-        ]);
+        $response = ['authenticated' => true];
+        if ($result !== true) {
+            $response['channel_data'] = $result;
+        }
+
+        return $this->jsonResponse($response);
     }
 }

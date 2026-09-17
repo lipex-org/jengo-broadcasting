@@ -47,9 +47,14 @@ class LogBroadcaster extends AbstractBroadcaster
             return $this->jsonResponse(['error' => 'Unauthorized'], 403);
         }
 
-        return $this->jsonResponse([
-            'auth'         => 'log-key:' . md5((string) $request->getPost('socket_id')),
-            'channel_data' => is_array($result) ? json_encode($result) : (string) $result,
-        ]);
+        $response = [
+            'auth' => 'log-key:' . md5((string) $request->getPost('socket_id')),
+        ];
+
+        if ($result !== true) {
+            $response['channel_data'] = is_array($result) ? json_encode($result) : (string) $result;
+        }
+
+        return $this->jsonResponse($response);
     }
 }

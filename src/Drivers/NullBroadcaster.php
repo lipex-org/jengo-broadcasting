@@ -29,6 +29,10 @@ class NullBroadcaster extends AbstractBroadcaster
 
     public function validAuthenticationResponse(IncomingRequest $request, mixed $result): mixed
     {
+        if ($result === false || $result === null) {
+            return $this->jsonResponse(['error' => 'Unauthorized'], 403);
+        }
+
         return $this->jsonResponse([
             'auth' => 'null-auth',
         ]);

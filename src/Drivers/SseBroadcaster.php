@@ -156,10 +156,12 @@ class SseBroadcaster extends AbstractBroadcaster
             return $this->jsonResponse(['error' => 'Unauthorized'], 403);
         }
 
-        return $this->jsonResponse([
-            'authenticated' => true,
-            'channel_data'  => $result,
-        ]);
+        $response = ['authenticated' => true];
+        if ($result !== true) {
+            $response['channel_data'] = $result;
+        }
+
+        return $this->jsonResponse($response);
     }
 
     public function getHeartbeatInterval(): int

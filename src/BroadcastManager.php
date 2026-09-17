@@ -323,6 +323,9 @@ class BroadcastManager
 
         $payload = [];
         foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
+            if (! $property->isInitialized($event)) {
+                continue;
+            }
             $propName = $property->getName();
             if ($selectedProps === null || in_array($propName, $selectedProps, true)) {
                 $payload[$propName] = $property->getValue($event);

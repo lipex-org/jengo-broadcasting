@@ -24,6 +24,14 @@ class BroadcastServeCommand extends BaseCommand
         $host = $params['host'] ?? CLI::getOption('host');
         if ($host === null) {
             foreach ($params as $key => $val) {
+                if (is_string($val) && str_starts_with($val, '--host=')) {
+                    $host = substr($val, 7);
+                    break;
+                }
+                if (is_string($val) && str_starts_with($val, 'host=')) {
+                    $host = substr($val, 5);
+                    break;
+                }
                 if (is_string($key) && str_starts_with($key, 'host=')) {
                     $host = substr($key, 5);
                     break;
@@ -35,6 +43,14 @@ class BroadcastServeCommand extends BaseCommand
         $port = $params['port'] ?? CLI::getOption('port');
         if ($port === null) {
             foreach ($params as $key => $val) {
+                if (is_string($val) && str_starts_with($val, '--port=')) {
+                    $port = substr($val, 7);
+                    break;
+                }
+                if (is_string($val) && str_starts_with($val, 'port=')) {
+                    $port = substr($val, 5);
+                    break;
+                }
                 if (is_string($key) && str_starts_with($key, 'port=')) {
                     $port = substr($key, 5);
                     break;

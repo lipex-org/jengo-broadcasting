@@ -37,6 +37,14 @@ class BroadcastTestCommand extends BaseCommand
         $dataRaw = $params['data'] ?? CLI::getOption('data');
         if ($dataRaw === null) {
             foreach ($params as $key => $val) {
+                if (is_string($val) && str_starts_with($val, '--data=')) {
+                    $dataRaw = substr($val, 7);
+                    break;
+                }
+                if (is_string($val) && str_starts_with($val, 'data=')) {
+                    $dataRaw = substr($val, 5);
+                    break;
+                }
                 if (is_string($key) && str_starts_with($key, 'data=')) {
                     $dataRaw = substr($key, 5);
                     break;
@@ -60,6 +68,14 @@ class BroadcastTestCommand extends BaseCommand
         $driver = $params['driver'] ?? CLI::getOption('driver');
         if ($driver === null) {
             foreach ($params as $key => $val) {
+                if (is_string($val) && str_starts_with($val, '--driver=')) {
+                    $driver = substr($val, 9);
+                    break;
+                }
+                if (is_string($val) && str_starts_with($val, 'driver=')) {
+                    $driver = substr($val, 7);
+                    break;
+                }
                 if (is_string($key) && str_starts_with($key, 'driver=')) {
                     $driver = substr($key, 7);
                     break;

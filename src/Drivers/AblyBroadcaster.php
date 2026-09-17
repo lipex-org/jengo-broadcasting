@@ -47,6 +47,10 @@ class AblyBroadcaster extends AbstractBroadcaster
             return;
         }
 
+        if (empty($this->key)) {
+            throw new BroadcastException('Ably API key is required for AblyBroadcaster.');
+        }
+
         $formattedChannels = $this->formatChannels($channels);
 
         $client = $this->client ?? Services::curlrequest([
@@ -102,6 +106,10 @@ class AblyBroadcaster extends AbstractBroadcaster
     {
         if ($result === false || $result === null) {
             return $this->jsonResponse(['error' => 'Unauthorized'], 403);
+        }
+
+        if (empty($this->key)) {
+            throw new BroadcastException('Ably API key is required for AblyBroadcaster.');
         }
 
         return $this->jsonResponse([

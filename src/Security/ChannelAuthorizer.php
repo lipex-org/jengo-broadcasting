@@ -127,8 +127,9 @@ class ChannelAuthorizer
                 $parameters = [];
                 foreach ($matches as $key => $value) {
                     if (is_string($key)) {
-                        // Cast numeric parameters
-                        $parameters[$key] = is_numeric($value) && ! str_starts_with($value, '0')
+                        // Cast numeric parameters (including 0, but preserving padded numeric strings like '007')
+                        $isLeadingZero = strlen($value) > 1 && str_starts_with($value, '0');
+                        $parameters[$key] = (is_numeric($value) && ! $isLeadingZero && ! str_contains($value, '.'))
                             ? (int) $value
                             : $value;
                     }
