@@ -1,4 +1,22 @@
-# Jengo Broadcasting
+<p align="center">
+  <a href="https://lipex-org.github.io/jengophp.com/">
+    <img src="https://raw.githubusercontent.com/lipex-org/docs/main/public/logo-full.png" width="220" alt="Jengo Logo">
+  </a>
+</p>
+
+<h1 align="center">Jengo Broadcasting</h1>
+
+<p align="center">
+  <strong>Event-driven real-time publish-subscribe engine for CodeIgniter 4 with zero-daemon Server-Sent Events (SSE) and local WebSocket daemon support.</strong>
+</p>
+
+<p align="center">
+  <a href="https://lipex-org.github.io/jengophp.com/packages/broadcasting"><strong>Documentation</strong></a> •
+  <a href="https://github.com/lipex-org/broadcasting/blob/main/LICENSE"><strong>License</strong></a> •
+  <a href="https://github.com/lipex-org/broadcasting/issues"><strong>Issues</strong></a>
+</p>
+
+---
 
 Real-time event broadcasting subsystem for CodeIgniter 4 and the Jengo Framework.
 
