@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Jengo\Broadcasting\Security;
 
 use Closure;
+use Jengo\Base\Container\Container;
 use Jengo\Broadcasting\Contracts\ChannelInterface;
 
 class ChannelAuthorizer
@@ -137,7 +138,7 @@ class ChannelAuthorizer
 
                 $args = array_merge([$user], array_values($parameters));
 
-                return ($entry['callback'])(...$args);
+                return Container::getInstance()->call($entry['callback'], $args);
             }
         }
 

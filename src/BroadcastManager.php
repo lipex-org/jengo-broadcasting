@@ -7,6 +7,7 @@ namespace Jengo\Broadcasting;
 use Closure;
 use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\ResponseInterface;
+use Jengo\Base\Container\Container;
 use Jengo\Broadcasting\Attributes\BroadcastAs;
 use Jengo\Broadcasting\Attributes\BroadcastOn;
 use Jengo\Broadcasting\Attributes\BroadcastWith;
@@ -14,6 +15,7 @@ use Jengo\Broadcasting\Config\Broadcasting as BroadcastingConfig;
 use Jengo\Broadcasting\Contracts\BroadcasterInterface;
 use Jengo\Broadcasting\Contracts\ChannelInterface;
 use Jengo\Broadcasting\Contracts\ShouldBroadcast;
+use Jengo\Broadcasting\Contracts\ShouldBroadcastNow;
 use Jengo\Broadcasting\Drivers\AblyBroadcaster;
 use Jengo\Broadcasting\Drivers\LogBroadcaster;
 use Jengo\Broadcasting\Drivers\NullBroadcaster;
@@ -25,6 +27,7 @@ use Jengo\Broadcasting\Security\ChannelAuthorizer;
 use Jengo\Broadcasting\Security\SocketHeaderResolver;
 use Jengo\Broadcasting\Support\BroadcastPendingEvent;
 use Jengo\Broadcasting\Testing\BroadcastFake;
+use Jengo\Queues\Facades\Queue;
 use ReflectionClass;
 use ReflectionProperty;
 
@@ -135,8 +138,11 @@ class BroadcastManager
     public function event(object $event): void
     {
         // 1. Check broadcastWhen() hook
-        if (method_exists($event, 'broadcastWhen') && ! $event->broadcastWhen()) {
-            return;
+        if (method_exists($event, 'broadcastWhen')) {
+            $shouldBroadcast = (bool) Container::getInstance()->call([$event, 'broadcastWhen']);
+            if (! $shouldBroadcast) {
+                return;
+            }
         }
 
         // 2. Resolve channels
@@ -166,7 +172,15 @@ class BroadcastManager
             return;
         }
 
-        // Dispatch broadcast
+        // 6. Asynchronous execution via Queue::defer if event implements ShouldBroadcast and not ShouldBroadcastNow
+        if ($event instanceof ShouldBroadcast && ! ($event instanceof ShouldBroadcastNow) && class_exists(Queue::class)) {
+            Queue::defer(function (BroadcastManager $manager, array $chans, string $evtName, array $data) {
+                $manager->connection()->broadcast($chans, $evtName, $data);
+            }, $channels, $eventName, $payload);
+            return;
+        }
+
+        // Dispatch broadcast immediately
         $driver->broadcast($channels, $eventName, $payload);
     }
 
